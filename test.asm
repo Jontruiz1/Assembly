@@ -1,106 +1,42 @@
 INCLUDE Irvine32.inc
-
 .data
-
-row BYTE ?
-col BYTE ?
-
-rows = 30
-cols = 30
-numOfElements = (rows * cols)
-
-coordList DWORD numOfElements DUP(0)
-coordPos DWORD ?
-
+str1 BYTE "Enter a Number: ",0
+str2 BYTE "The Values Are: ",0
+str3 BYTE "The Total is: ",0
+str4 BYTE "  ",0
 .code
 main PROC
+	mov  edx,OFFSET str1
+	call WriteString
+	call ReadInt
+    mov  edx,OFFSET str2
+	call WriteString
+	mov  edx,OFFSET str4
+	call WriteString
+	mov ecx, eax
+	mov eax,0
+	mov ebx,0
+L1:
+	
+    call WriteInt
+	mov  edx,OFFSET str4
+	call WriteString
+	add ebx, eax
+	add eax,2
+	dec ecx
 
-    ; loop x times
-    mov ecx,7000
+	jz Stop
 
-    call Randomize
-    ; draw x loop:
-    L1:
-        call RandomCoords
+loop L1
+	Stop:
 
-        ; get coord position ((row-1) * cols) + col:
-        dec row
-        mov al,row
-        push ecx
-        mov ecx,cols
-        mul ecx
-        pop ecx
-        add al,col
-
-        ; fix to a weird bug:
-        cmp eax,numOfElements
-        jae weirdBug
-
-        ; increment value at position:
-        inc [coordList+eax]
-        mov coordPos,eax
-        mov eax,[coordList+eax]
-        add al,'0'
-
-        ; if number > 9 then reset to 0:
-        cmp al,'9'
-        jl lessNine
-        mov edx,coordPos
-        mov [coordList+edx],0
-        mov eax,[coordList+edx]
-        add al,'0'
-
-        ; if number < 9, just draw it as is:
-        lessNine:
-        call DrawNum
-
-        mov eax,1
-        call Delay
-    
-    weirdBug:
-    loop L1
-
-    call ReadChar
-    exit
+	call CRLF
+	mov  edx,OFFSET str3
+	call WriteString
+	mov eax,ebx
+	call WriteInt
+	call crlf
+	call WaitMSG
+	exit
 main ENDP
-
-; write the number:
-DrawNum PROC
-    call Locate
-    push eax
-    call ChooseColor
-    pop eax
-    call WriteChar
-    ret
-DrawNum ENDP
-
-; position the cursor
-Locate PROC
-    mov  dh,row
-    mov  dl,col
-    call Gotoxy
-    ret
-Locate ENDP
-
-RandomCoords PROC
-    ; generate random row position:
-    mov eax,rows
-    call RandomRange
-    mov row,al
-
-    ; generate random col position:
-    mov eax,cols
-    call RandomRange
-    mov col,al
-RandomCoords ENDP
-
-ChooseColor PROC
-    ; generate random forecolor:
-    mov    eax,15
-    call RandomRange    
-    inc eax
-    call SetTextColor
-    ret
-ChooseColor ENDP
-
 END main

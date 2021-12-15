@@ -1,5 +1,5 @@
-Microsoft (R) Macro Assembler Version 14.29.30136.0	    11/11/21 17:46:02
-HW04.asm						     Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.29.30136.0	    12/14/21 13:32:30
+Final_problem2.asm					     Page 1 - 1
 
 
 				INCLUDE Irvine32.inc
@@ -21,95 +21,36 @@ HW04.asm						     Page 1 - 1
 			      C .LIST
 			      C 
 
+					COMMENT !
+						The following program prints a string. Modify the code necessary
+						to print the string in reverse order.
+					!
+
  00000000			.data
- 00000000 0000000A		row dword 10
- 00000004 0000000A		col dword 10
-
- 00000008  00000064 [		console byte (100) dup(0)                   ; screen buffer based on row * col elements
-	    00
-	   ]
-
+ 00000000 54 68 69 73 20	str1 BYTE "This is a random text field.", 0
+	   69 73 20 61 20
+	   72 61 6E 64 6F
+	   6D 20 74 65 78
+	   74 20 66 69 65
+	   6C 64 2E 00
  00000000			.code
-
  00000000			main PROC
- 00000000  B8 00000000		    mov eax, 0                              ; just zeroing out eax and edx
- 00000005  BA 00000000		    mov edx, 0
-
- 0000000A  E8 00000000 E	    call Randomize                          ; seeding the values
-				    
- 0000000F  B3 31		    mov bl, '1'                             ; load the character 1 into bl
-
- 00000011  B9 000003E8		    mov ecx, 1000
- 00000016			    L1:
- 00000016  E8 00000068		        call RandColor
- 0000001B  E8 0000003F		        call RandPos
-
- 00000020  BF 00000008 R	        mov edi, offset console             ; get the offset of the console into edi
- 00000025  B8 0000000A		        mov eax, 10                         ; row size into eax
- 0000002A  F6 E6		        mul dh                              ; row size * row index
- 0000002C  03 F8		        add edi, eax                        ; getting the row offset
- 0000002E  B6 00		        mov dh, 0                           ; zeroing out dh so dl is the only thing left
- 00000030  8B F2		        mov esi, edx                        ; moving column index into esi
- 00000032  8A 04 3E		        mov al, [esi+edi]                   ; basically doing mov al, [ebx+esi]  
-				                                            ; which moves the element into al
-
- 00000035  3A C3		        cmp al, bl              ; if al == bl
- 00000037  75 09		        jne normal              ; not, jump to write the char
- 00000039  FE C3		        inc bl                  ; else, increment bl
- 0000003B  80 FB 39		        cmp bl, '9'             ; if bl > '9'
- 0000003E  76 02		        jbe normal              ; not, jump to write the char
- 00000040  B3 31		        mov bl, '1'             ; true, reset bl to '1'
-
- 00000042			        normal:
- 00000042  8A C3		        mov al, bl              ; load the num into al to write it 
- 00000044  E8 00000000 E	        call WriteChar          ; write the char
-
- 00000049  88 04 3E		        mov [esi + edi], al     ; load the num we just printed into the console array
-
- 0000004C  B8 0000000A		        mov eax, 10
- 00000051  E8 00000000 E	        call Delay
- 00000056  E2 BE		    loop L1
-
-				    exit
- 00000058  6A 00	   *	    push   +000000000h
- 0000005A  E8 00000000 E   *	    call   ExitProcess
- 0000005F			main ENDP
-
-				;  Finds random position and goes to it
- 0000005F			RandPos PROC
- 0000005F  A1 00000000 R	    mov eax, row
- 00000064  E8 00000000 E	    call RandomRange        ; random num in range 0 -> row-1, puts it into eax
- 00000069  8A F0		    mov dh, al
-
- 0000006B  A1 00000004 R	    mov eax, col
- 00000070  E8 00000000 E	    call RandomRange        ; random num in range 0 -> col-1, puts it into eax
- 00000075  8A D0		    mov dl, al
-
- 00000077  80 C6 01		    add dh, 1
- 0000007A  80 C2 01		    add dl, 1
-
- 0000007D  E8 00000000 E	    call Gotoxy                ; call the Gotoxy to move the cursor over
-
- 00000082  C3			    ret
- 00000083			RandPos ENDP
-
-				;  Sets the random color for the character
- 00000083			RandColor PROC
-
- 00000083  B8 00000010		    mov eax, 16                         ; 16 for 16 colors
- 00000088  E8 00000000 E	    call RandomRange                    ; random range in from 0 to 15
- 0000008D  83 F8 00		    cmp eax, 0                          ; if random num generated is 0, add 1
- 00000090  75 03		    jne nblack
- 00000092  83 C0 01		    add eax, 1
- 00000095  E8 00000000 E	    nblack: call SetTextColor           ; else just set text color to eax
- 0000009A  C3			    ret
-
- 0000009B			RandColor ENDP
-
-
+ 00000000  BE 00000000 R		mov esi,OFFSET str1
+ 00000005  83 C6 1B			add esi, lengthof str1-2				; -2 for the ,0
+ 00000008  B9 0000001C			mov ecx,SIZEOF str1-1
+ 0000000D				L1:
+ 0000000D  8A 06				mov al,[esi]
+ 0000000F  E8 00000000 E			call WriteChar
+ 00000014  E8 00000000 E			call Crlf
+ 00000019  4E					dec esi
+ 0000001A  E2 F1				loop L1
+					exit
+ 0000001C  6A 00	   *	    push   +000000000h
+ 0000001E  E8 00000000 E   *	    call   ExitProcess
+ 00000023			main ENDP
 				END main
-Microsoft (R) Macro Assembler Version 14.29.30136.0	    11/11/21 17:46:02
-HW04.asm						     Symbols 2 - 1
+Microsoft (R) Macro Assembler Version 14.29.30136.0	    12/14/21 13:32:30
+Final_problem2.asm					     Symbols 2 - 1
 
 
 
@@ -202,8 +143,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000006C Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000009B Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000001D Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000023 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -258,9 +199,6 @@ OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-RandColor  . . . . . . . . . . .	P Near	 00000083 _TEXT	Length= 00000018 Public STDCALL
-  nblack . . . . . . . . . . . .	L Near	 00000095 _TEXT	
-RandPos  . . . . . . . . . . . .	P Near	 0000005F _TEXT	Length= 00000024 Public STDCALL
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -313,9 +251,8 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000005F Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 00000016 _TEXT	
-  normal . . . . . . . . . . . .	L Near	 00000042 _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000023 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 0000000D _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -537,8 +474,6 @@ WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-col  . . . . . . . . . . . . . .	DWord	 00000004 _DATA	
-console  . . . . . . . . . . . .	Byte	 00000008 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
@@ -551,7 +486,7 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-row  . . . . . . . . . . . . . .	DWord	 00000000 _DATA	
+str1 . . . . . . . . . . . . . .	Byte	 00000000 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   

@@ -22,7 +22,7 @@ main PROC
         call RandPos
 
         mov edi, offset console             ; get the offset of the console into edi
-        mov eax, 10                         ; row size into eax
+        mov eax, row                         ; row size into eax
         mul dh                              ; row size * row index
         add edi, eax                        ; getting the row offset
         mov dh, 0                           ; zeroing out dh so dl is the only thing left
